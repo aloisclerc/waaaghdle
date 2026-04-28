@@ -42,10 +42,10 @@ export function GuessTable({ guesses, turn }: { guesses: GuessResult[], turn: nu
 
         <tbody>
           {guesses.map((g, i) => (
-            <tr key={i} className="h-12">
+            <tr key={i} className="h-18">
               <FlipCell
                 value={g.nameValue}
-                delay={0}
+                delay={100}
                 colorClass={getCellStyle(g.name)}
                 trigger={i===0 ? turn : 0}
                 rowNum={i}

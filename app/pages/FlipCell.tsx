@@ -1,52 +1,72 @@
 "use client"
 
+import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 
 export function FlipCell({
   value,
   colorClass,
   delay,
+  rowNum,
   trigger,
-  rowNum
 }: {
   value: string
   colorClass: string
   delay: number
-  trigger: number
   rowNum: number
+  trigger: number
 }) {
-  const [phase, setPhase] = useState<"hidden" | "flipping" | "revealed">("hidden")
+  const isActive = rowNum === 0
+
+  const [revealed, setRevealed] = useState(true)
 
   useEffect(() => {
-    if(rowNum === 0){
+    console.log(value)
+  if (!isActive) return
 
-        const t1 = setTimeout(() => setPhase("flipping"), delay)
-        const t2 = setTimeout(() => setPhase("revealed"), delay + 400)
+  console.log(value)
 
-        return () => {
-        clearTimeout(t1)
-        clearTimeout(t2)
-        }
+  let raf: number
+  let t: NodeJS.Timeout
 
-    } else {
-        setPhase("revealed")
-    }
-    
-  }, [trigger, delay])
 
-  const isHidden = phase === "hidden"
-  const isFlipping = phase === "flipping"
+  setRevealed(false)
+
+  raf = requestAnimationFrame(() => {
+    t = setTimeout(() => {
+      setRevealed(true)
+    }, delay)
+  })
+
+  return () => {
+    cancelAnimationFrame(raf)
+    clearTimeout(t)
+  }
+}, [trigger, isActive, delay])
 
   return (
-    <td
-      className={`
-        w-24 h-12 border border-neutral-700
-        text-white font-medium text-center rounded-lg m-3
-        ${phase === "revealed" ? colorClass : "bg-neutral-800"}
-        ${isFlipping ? "flip" : ""}
-      `}
-    >
-      {isHidden ? "" : value}
+    <td className="w-24 h-12 perspective">
+      <motion.div
+        initial={false}
+        animate={isActive ? { rotateX: revealed ? 180 : 0 } : { rotateX: 180 }}
+        transition={{
+          duration: 0.5,
+          ease: "easeInOut",
+        }}
+        className="relative w-full h-full"
+        style={{ transformStyle: "preserve-3d" }}
+      >
+        {/* Front (hidden) */}
+        <div className="absolute inset-0 flex items-center justify-center border border-neutral-700 bg-neutral-800 backface-hidden m-1 rounded-lg" />
+
+        {/* Back (revealed) */}
+        <div
+          className={`absolute inset-0 flex items-center justify-center border border-neutral-700 ${colorClass} backface-hidden m-1 rounded-lg`}
+          style={{ transform: "rotateX(180deg)" }}
+        >
+          {value}
+        </div>
+      </motion.div>
     </td>
   )
 }
