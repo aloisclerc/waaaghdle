@@ -1,0 +1,4 @@
+[
+    { "name": "Intercessor Squad", "faction": "Space Marines", "role": "Battleline", "points": 95 },
+    { "name": "Terminator Squad", "faction": "Space Marines", "role": "Infantry", "points": 185 }
+  ]
