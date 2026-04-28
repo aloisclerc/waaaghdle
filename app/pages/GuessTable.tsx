@@ -1,3 +1,6 @@
+import { FlipCell } from "./FlipCell"
+
+
 export type GuessResult = {
   name: "correct" | "wrong"
   faction: "correct" | "wrong"
@@ -14,17 +17,17 @@ const getCellStyle = (value: string) => {
     case "correct":
       return "bg-green-600 text-white"
     case "wrong":
-      return "bg-neutral-700 text-white"
+      return "bg-red-700 text-white"
     case "higher":
       return "bg-yellow-600 text-white"
     case "lower":
-      return "bg-blue-600 text-white"
+      return "bg-yellow-600 text-white"
     default:
       return "bg-neutral-800 text-white"
   }
 }
 
-export function GuessTable({ guesses }: { guesses: GuessResult[] }) {
+export function GuessTable({ guesses, turn }: { guesses: GuessResult[], turn: number }) {
   return (
     <div className="w-full max-w-2xl mt-10">
       <table className="w-full border-collapse text-center">
@@ -38,6 +41,48 @@ export function GuessTable({ guesses }: { guesses: GuessResult[] }) {
         </thead>
 
         <tbody>
+          {guesses.map((g, i) => (
+            <tr key={i} className="h-12">
+              <FlipCell
+                value={g.nameValue}
+                delay={0}
+                colorClass={getCellStyle(g.name)}
+                trigger={i===0 ? turn : 0}
+                rowNum={i}
+              />
+
+              <FlipCell
+                value={g.factionValue}
+                delay={300}
+                colorClass={getCellStyle(g.faction)}
+                trigger={i===0 ? turn : 0}
+                rowNum={i}
+              />
+
+              <FlipCell
+                value={g.roleValue}
+                delay={600}
+                colorClass={getCellStyle(g.role)}
+                trigger={i===0 ? turn : 0}
+                rowNum={i}
+              />
+
+              <FlipCell
+                value={g.pointsValue + " " + (g.points === "correct"
+                  ? "✓"
+                  : g.points === "higher"
+                  ? "↑"
+                  : "↓")}
+                delay={900}
+                colorClass={getCellStyle(g.points)}
+                trigger={i===0 ? turn : 0}
+                rowNum={i}
+              />
+            </tr>
+          ))}
+        </tbody>
+
+        {/* <tbody>
           {guesses.map((g, i) => (
             <tr key={i} className="h-12">
               <td className={`border border-neutral-700 ${getCellStyle(g.name)}`}>
@@ -61,7 +106,7 @@ export function GuessTable({ guesses }: { guesses: GuessResult[] }) {
               </td>
             </tr>
           ))}
-        </tbody>
+        </tbody> */}
       </table>
     </div>
   )

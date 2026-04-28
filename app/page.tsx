@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from "react"
 import units from "../src/data/units.json"
-import {GuessTable, GuessResult} from "./table"
+import {GuessTable, GuessResult} from "./pages/GuessTable"
 import { Unit } from "@/src/lib/util"
+import { getDailyUnit, evaluateGuess, getUnitByName } from "@/src/lib/util"
 
 export default function Home() {
   const [query, setQuery] = useState("")
   const [filtered, setFiltered] = useState<Unit[]>([])
   const [showDropdown, setShowDropdown] = useState(false)
   const [guesses, setGuesses] = useState<GuessResult[]>([])
+  const [turn, setTurn] = useState(0)
 
   useEffect(() => {
     if (!query) {
@@ -39,8 +41,15 @@ export default function Home() {
   };
 
   const enterGuess = (name: string) => {
-    const newGuess:GuessResult = {name: "correct", faction: "correct", role: "correct", points: "correct", nameValue: name, factionValue: "Space Marines", roleValue: "Battleline", pointsValue: 85};
-      setGuesses(prevGuesses => [newGuess, ...prevGuesses]);
+    // const newGuess:GuessResult = {name: "correct", faction: "correct", role: "correct", points: "correct", nameValue: name, factionValue: "Space Marines", roleValue: "Battleline", pointsValue: 85};
+    const unit = getUnitByName(name)
+    if (unit.name === ''){
+      return
+    }
+    
+    const newGuess:GuessResult = evaluateGuess(unit, getDailyUnit())
+    setTurn(prev => prev + 1)
+    setGuesses(prevGuesses => [newGuess, ...prevGuesses]);
   };
 
   return (
@@ -80,7 +89,7 @@ export default function Home() {
           </ul>
         )}
       </div>
-      {guesses.length > 0 && <GuessTable guesses={guesses}></GuessTable>}
+      {guesses.length > 0 && <GuessTable guesses={guesses} turn={turn}></GuessTable>}
       
     </main>
   )
