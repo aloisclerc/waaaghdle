@@ -1,67 +1,89 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { useEffect, useState } from "react"
+import { motion, useAnimationControls } from "framer-motion"
+import { useEffect } from "react"
 
 export function FlipCell({
   value,
   colorClass,
-  delay,
   rowNum,
+  order,
   trigger,
 }: {
   value: string
   colorClass: string
-  delay: number
   rowNum: number
+  order: number
   trigger: number
 }) {
+  const controls = useAnimationControls()
+
   const isActive = rowNum === 0
 
-  const [revealed, setRevealed] = useState(true)
+//   useEffect(() => {
+//     if (!isActive) return
 
-  useEffect(() => {
-    console.log(value)
-  if (!isActive) return
+//     const run = async () => {
+//       // start hidden
+//       await controls.set({ rotateX: 0 })
 
-  console.log(value)
+//       // stagger per cell
+//       await new Promise((r) => setTimeout(r, order * 150))
 
-  let raf: number
-  let t: NodeJS.Timeout
+//       // flip
+//       await controls.start({
+//         rotateX: 180,
+//         transition: {
+//           duration: 0.5,
+//           ease: [0.4, 0, 0.2, 1],
+//         },
+//       })
+//     }
 
+//     run()
+//   }, [trigger, isActive])
+useEffect(() => {
+  if (rowNum !== 0) return
 
-  setRevealed(false)
-
-  raf = requestAnimationFrame(() => {
-    t = setTimeout(() => {
-      setRevealed(true)
-    }, delay)
-  })
-
-  return () => {
-    cancelAnimationFrame(raf)
-    clearTimeout(t)
+  const run = async () => {
+    await controls.set({ rotateX: 0 })
+    await new Promise((r) => setTimeout(r, order * 150))
+    await controls.start({
+      rotateX: 180,
+      transition: {
+        duration: 0.5,
+        ease: [0.4, 0, 0.2, 1],
+      },
+    })
   }
-}, [trigger, isActive, delay])
+
+  run()
+}, [trigger, rowNum])
 
   return (
     <td className="w-24 h-12 perspective">
+        {/* <motion.div
+  animate={
+    rowNum === 0
+      ? controls
+      : { rotateX: 180 }   // 👈 IMPORTANT FIX
+  }
+  initial={false}
+  style={{ transformStyle: "preserve-3d" }}
+  className="relative w-full h-full"
+></motion.div> */}
       <motion.div
+        animate={rowNum === 0
+      ? controls
+      : { rotateX: 180 }}
         initial={false}
-        animate={isActive ? { rotateX: revealed ? 180 : 0 } : { rotateX: 180 }}
-        transition={{
-          duration: 0.5,
-          ease: "easeInOut",
-        }}
-        className="relative w-full h-full"
         style={{ transformStyle: "preserve-3d" }}
+        className="relative w-full h-full"
       >
-        {/* Front (hidden) */}
-        <div className="absolute inset-0 flex items-center justify-center border border-neutral-700 bg-neutral-800 backface-hidden m-1 rounded-lg" />
+        <div className="absolute inset-0 flex items-center justify-center border border-neutral-700 bg-neutral-800 backface-hidden rounded-lg m-1" />
 
-        {/* Back (revealed) */}
         <div
-          className={`absolute inset-0 flex items-center justify-center border border-neutral-700 ${colorClass} backface-hidden m-1 rounded-lg`}
+          className={`absolute inset-0 flex items-center justify-center border border-neutral-700 rounded-lg m-1 ${colorClass} backface-hidden`}
           style={{ transform: "rotateX(180deg)" }}
         >
           {value}
