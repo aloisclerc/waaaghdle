@@ -41,7 +41,6 @@ export default function Home() {
   };
 
   const enterGuess = (name: string) => {
-    // const newGuess:GuessResult = {name: "correct", faction: "correct", role: "correct", points: "correct", nameValue: name, factionValue: "Space Marines", roleValue: "Battleline", pointsValue: 85};
     const unit = getUnitByName(name)
     if (unit.name === ''){
       return
@@ -55,7 +54,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-neutral-900 text-white px-4">
       {/* Header */}
-      <h1 className="text-4xl font-bold mb-8 tracking-wide">
+      <h1 className={`text-4xl font-bold mb-8 tracking-wide`}>
         Waaaghdle
       </h1>
 

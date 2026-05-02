@@ -18,30 +18,6 @@ export function FlipCell({
 }) {
   const controls = useAnimationControls()
 
-  const isActive = rowNum === 0
-
-//   useEffect(() => {
-//     if (!isActive) return
-
-//     const run = async () => {
-//       // start hidden
-//       await controls.set({ rotateX: 0 })
-
-//       // stagger per cell
-//       await new Promise((r) => setTimeout(r, order * 150))
-
-//       // flip
-//       await controls.start({
-//         rotateX: 180,
-//         transition: {
-//           duration: 0.5,
-//           ease: [0.4, 0, 0.2, 1],
-//         },
-//       })
-//     }
-
-//     run()
-//   }, [trigger, isActive])
 useEffect(() => {
   if (rowNum !== 0) return
 
@@ -62,16 +38,6 @@ useEffect(() => {
 
   return (
     <td className="w-24 h-12 perspective">
-        {/* <motion.div
-  animate={
-    rowNum === 0
-      ? controls
-      : { rotateX: 180 }   // 👈 IMPORTANT FIX
-  }
-  initial={false}
-  style={{ transformStyle: "preserve-3d" }}
-  className="relative w-full h-full"
-></motion.div> */}
       <motion.div
         animate={rowNum === 0
       ? controls

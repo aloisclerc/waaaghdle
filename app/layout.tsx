@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+// import localfont from "next/font/local"
+
+// export const warhammerFont = localfont({
+//     src: "../public/fonts/american-text.regular.ttf",
+//     variable: "--font-warhammer",
+//   });
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
