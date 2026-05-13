@@ -113,10 +113,10 @@ function createUnit(entry: any, faction: string){
     if(typeof entry["costs"] !== 'undefined'){
       if(Array.isArray(entry["costs"]["cost"])){
         entry["costs"]["cost"].forEach(element => {
-          if(element["@_name"] === "pts") entryJSON["points"] = element["@_value"]
+          if(element["@_name"] === "pts") entryJSON["points"] = parseInt(element["@_value"])
         });
       } else {
-          if(entry["costs"]["cost"]["@_name"] === "pts") entryJSON["points"] = entry["costs"]["cost"]["@_value"]
+          if(entry["costs"]["cost"]["@_name"] === "pts") entryJSON["points"] = parseInt(entry["costs"]["cost"]["@_value"])
       }
     } else if(typeof entry["selectionEntries"] !== undefined){
       entry["selectionEntries"]["selectionEntry"]["costs"]["cost"].forEach(element => {
@@ -135,7 +135,7 @@ function createUnit(entry: any, faction: string){
     console.log(entry["name"]);
     return
   }
-
+  
   outputJSON.push(entryJSON);
 
 }
