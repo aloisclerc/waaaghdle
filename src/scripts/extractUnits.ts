@@ -21,9 +21,12 @@ const DATA_PATH = "../wh40k-10e"
 const factionObj = {
   "Space Marines": [],
   "Imperium": [],
-  "Chaos": [],
+  "Chaos": [['Chaos Daemons', 'Chaos - Chaos Daemons Library.cat'], ['Chaos Knights', 'Chaos - Chaos Knights Library.cat'], ['Chaos Space Marines','Chaos - Chaos Space Marines.cat']],
   "Xenos": [['Aeldari', 'Aeldari - Aeldari Library.cat']]
 }
+
+//These terms either are broken for some reason or are excluded
+const excludedTerms = ["[Legends]", "[Crucible]", "Beastmaster"];
 
 const outputJSON: Unit[]  = [];
 
@@ -66,11 +69,17 @@ function walk(json: any, faction: string) {
         const entries = Array.isArray(value) ? value : [value]
 
         for (const entry of entries) {
-          if (entry["@_type"] === "unit") {
-            //build json here
-            createUnit(entry, faction);
-          }
+          if(!excludedTerms.some(term => entry["@_name"].includes(term))){
+            if (entry["@_type"] === "unit") {
+              //build json here
+              createUnit(entry, faction);
+            } else if(entry["@_type"] === "model"){
+              if(entry["categoryLinks"] !== undefined && Array.isArray(entry["categoryLinks"]["categoryLink"])){
+                createUnit(entry, faction);
+              }
+            }
 
+          }
           stack.push(entry)
         }
       } else if (typeof value === "object") {
@@ -82,13 +91,24 @@ function walk(json: any, faction: string) {
 
 function createUnit(entry: any, faction: string){
   const entryJSON: Unit = {"name": "", "faction": "", "role": "", "points": 0};
+  // NAME
   entryJSON["name"] = entry["@_name"];
+
+  // FACTION
   entryJSON["faction"] = faction;
   
-    entry["categoryLinks"]["categoryLink"].forEach(element => {
-      if(element["@_primary"] === "true") entryJSON["role"] = element["@_name"]
-      if(element["@_name"] === 'Faction: Drukhari') entryJSON["faction"] = "Drukhari"
-    });
+    // ROLE
+    if(Array.isArray(entry["categoryLinks"]["categoryLink"])){
+      entry["categoryLinks"]["categoryLink"].forEach(element => {
+        if(element["@_primary"] === "true") entryJSON["role"] = element["@_name"]
+        if(element["@_name"] === 'Faction: Drukhari') entryJSON["faction"] = "Drukhari"
+      });
+    } else {
+      console.log(entry);
+    }
+    
+
+    // COST
     try{
     if(typeof entry["costs"] !== 'undefined'){
       if(Array.isArray(entry["costs"]["cost"])){
@@ -100,7 +120,7 @@ function createUnit(entry: any, faction: string){
       }
     } else if(typeof entry["selectionEntries"] !== undefined){
       entry["selectionEntries"]["selectionEntry"]["costs"]["cost"].forEach(element => {
-          if(element["@_name"] === "pts") entryJSON["points"] = element["@_value"]
+          if(element["@_name"] === "pts") entryJSON["points"] = parseInt(element["@_value"])
       });
     } else {
       console.log("ERROR");
@@ -108,8 +128,13 @@ function createUnit(entry: any, faction: string){
     }
     } catch {
       console.log("ERROR");
-      console.log(entry["costs"]["cost"])
-    }   
+      console.log(entry)
+    }
+    
+  if(entryJSON["name"] == "" || entryJSON["role"] == "" || entryJSON["points"] == 0){
+    console.log(entry["name"]);
+    return
+  }
 
   outputJSON.push(entryJSON);
 
@@ -119,8 +144,13 @@ function createUnit(entry: any, faction: string){
 
 
 function main() {
-  const data = readCatFile(DATA_PATH, 'Aeldari - Aeldari Library.cat');
-  walk(data, 'Aeldari')
+  for(const [greaterFaction, factionList] of Object.entries(factionObj)){
+    for(const faction of factionList){
+      const data = readCatFile(DATA_PATH, faction[1]);
+      walk(data, faction[0])
+    }
+  }
+  
 
   const json = JSON.stringify(outputJSON, null, 2)
   fs.writeFileSync("./src/data/units.json", json, "utf-8");
